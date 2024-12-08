@@ -137,5 +137,41 @@ class UserAccountController extends Controller
 
         ], 200);
     }
+
+    public function updateCurrentUserDetails(Request $request)
+    {
+        $userAccount = $request->attributes->get('authenticated_user');
+        $existingUser = UserAccount::where('email', $userAccount->email)->first();
+
+        if (!$existingUser) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        // Validate the incoming data
+        $validatedData = $request->validate([
+            'firstname' => 'string|max:255',
+            'lastname' => 'string|max:255',
+            'phoneno' => 'string|max:15',
+            'dob' => 'date',
+            // 'email' => 'email|max:255',
+            'gender' => 'string|in:male,female,other',
+            'about' => 'string|nullable',
+            // 'firebase_id' => 'string|nullable',
+        ]);
+
+        // Update only the provided fields
+        $existingUser->fill($validatedData);
+
+        // Save the changes to the database
+        if ($existingUser->save()) {
+            return response()->json([
+                'message' => 'User details updated successfully.',
+                'user' => $existingUser,
+            ], 200);
+        }
+
+        // Handle save failure
+        return response()->json(['error' => 'Failed to update user details.'], 500);
+    }
 }
 

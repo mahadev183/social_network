@@ -13,4 +13,5 @@ Route::post('/login', [UserAccountController::class, 'login']);
 // Middleware-protected routes
 Route::middleware('firebase.auth')->group(function () {
     Route::get('/user-details', [UserAccountController::class, 'getUserDetails']);
+    Route::patch('/update-current-user', [UserAccountController::class, 'updateCurrentUserDetails']);
 });
